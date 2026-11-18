@@ -1,0 +1,28 @@
+name: TW stock report
+
+on:
+  schedule:
+    # 日本時間 10:02（台北開盤後）／14:45（台北 13:30 收盤後），週一到週五
+    - cron: '2 1 * * 1-5'
+    - cron: '45 5 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: open 或 close
+        type: choice
+        options: [open, close]
+        default: close
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Send report
+        env:
+          GOOGLE_CHAT_WEBHOOK: ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
+          MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event.schedule == '2 1 * * 1-5' && 'open' || 'close') }}
+        run: node stock.js "$MODE"
