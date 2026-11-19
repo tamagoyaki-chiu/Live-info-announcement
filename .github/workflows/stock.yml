@@ -1,10 +1,7 @@
 name: TW stock report
 
+# 排程已停用（GitHub 排程延遲太久）。程式保留，需要時可手動執行或重新加回 schedule。
 on:
-  schedule:
-    # 日本時間 10:02（台北開盤後）／14:45（台北 13:30 收盤後），週一到週五
-    - cron: '2 1 * * 1-5'
-    - cron: '45 5 * * 1-5'
   workflow_dispatch:
     inputs:
       mode:
@@ -24,5 +21,4 @@ jobs:
       - name: Send report
         env:
           GOOGLE_CHAT_WEBHOOK: ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
-          MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event.schedule == '2 1 * * 1-5' && 'open' || 'close') }}
-        run: node stock.js "$MODE"
+        run: node stock.js "${{ inputs.mode }}"
